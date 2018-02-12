@@ -9,6 +9,7 @@
     NSUInteger _framesPerSecond;
     NSMutableDictionary *_activeTasks;
     NSMutableDictionary *_imagesLoaded;
+    BOOL _isAnimating;
 }
 
 - (void)setImages:(NSArray *)images {
@@ -21,13 +22,13 @@
 
     for (NSUInteger index = 0; index < images.count; index++) {
         NSDictionary *item = images[index];
-        
+
         #ifdef DEBUG
         NSString *url = item[@"uri"];
         #else
         NSString *url = [NSString stringWithFormat:@"file://%@", item[@"uri"]]; // when not in debug, the paths are "local paths" (because resources are bundled in app)
         #endif
-      
+
         dispatch_async(dispatch_queue_create("dk.mads-lee.ImageSequence.Downloader", NULL), ^{
             UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:url]]];
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -65,15 +66,30 @@
     self.image = nil;
     self.animationDuration = images.count * (1.0f / _framesPerSecond);
     self.animationImages = images;
-    [self startAnimating];
+    self.image = [images objectAtIndex:0];
+    self.animationRepeatCount = 0;
+    if (_isAnimating) {
+        [self startAnimating];
+    }
 }
 
 - (void)setFramesPerSecond:(NSUInteger)framesPerSecond {
     _framesPerSecond = framesPerSecond;
-  
+
     if (self.animationImages.count > 0) {
         self.animationDuration = self.animationImages.count * (1.0f / _framesPerSecond);
     }
+}
+
+- (void)setIsAnimating:(BOOL)isAnimating {
+    if (!isAnimating && self.isAnimating) {
+        [self stopAnimating];
+        NSInteger lastIndex = self.animationImages.count - 1;
+    }
+    if (isAnimating && !self.isAnimating) {
+        [self startAnimating];
+    }
+    _isAnimating = isAnimating;
 }
 
 @end
