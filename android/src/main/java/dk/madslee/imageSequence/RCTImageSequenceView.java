@@ -22,11 +22,23 @@ public class RCTImageSequenceView extends ImageView {
     private ArrayList<AsyncTask> activeTasks;
     private HashMap<Integer, Bitmap> bitmaps;
     private RCTResourceDrawableIdHelper resourceDrawableIdHelper;
+    private AnimationDrawable animationDrawable;
 
     public RCTImageSequenceView(Context context) {
         super(context);
 
         resourceDrawableIdHelper = new RCTResourceDrawableIdHelper();
+    }
+
+    public void startAnimation() {
+        setupAnimationDrawable();
+        animationDrawable.start();
+
+    }
+
+    public void stopAnimation() {
+        setImageDrawable(null);
+        setupAnimationDrawable();
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
@@ -131,7 +143,7 @@ public class RCTImageSequenceView extends ImageView {
     }
 
     private void setupAnimationDrawable() {
-        AnimationDrawable animationDrawable = new AnimationDrawable();
+        animationDrawable = new AnimationDrawable();
         for (int index = 0; index < bitmaps.size(); index++) {
             BitmapDrawable drawable = new BitmapDrawable(this.getResources(), bitmaps.get(index));
             animationDrawable.addFrame(drawable, 1000 / framesPerSecond);
@@ -140,6 +152,5 @@ public class RCTImageSequenceView extends ImageView {
         animationDrawable.setOneShot(false);
 
         this.setImageDrawable(animationDrawable);
-        animationDrawable.start();
     }
 }

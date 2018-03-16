@@ -45,4 +45,14 @@ public class RCTImageSequenceManager extends SimpleViewManager<RCTImageSequenceV
 
         view.setImages(uris);
     }
+
+    @ReactProp(name = "isAnimating")
+    public void setAnimating(final RCTImageSequenceView view, Boolean isAnimating) {
+        if (isAnimating) {
+            view.startAnimation();
+        } else {
+            view.stopAnimation();
+        }
+    }
+
 }
